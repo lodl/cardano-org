@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import { useBaseUrlUtils } from "@docusaurus/useBaseUrl";
@@ -58,6 +58,39 @@ export default function NewsCard({ post, className }) {
     clampDescription = false,
   } = post;
 
+  const descriptionRef = useRef(null);
+
+  // The CSS clamp cuts at the line edge, which lands mid-word ("withdrawal o...").
+  // For the clamped variant, trim to whole words instead, measured against the
+  // rendered height. The server-rendered HTML keeps the full text, so nothing is
+  // lost when JavaScript is off.
+  useLayoutEffect(() => {
+    const el = descriptionRef.current;
+    if (!clampDescription || !el || !description) return undefined;
+    const full = description;
+    el.textContent = full;
+    const lineHeight = parseFloat(window.getComputedStyle(el).lineHeight) || 0;
+    const maxHeight = lineHeight * 3 + 1;
+    if (lineHeight && el.scrollHeight > maxHeight) {
+      const words = full.split(/\s+/);
+      let low = 0;
+      let high = words.length;
+      while (low < high) {
+        const mid = Math.ceil((low + high) / 2);
+        el.textContent = `${words.slice(0, mid).join(" ")}…`;
+        if (el.scrollHeight <= maxHeight) {
+          low = mid;
+        } else {
+          high = mid - 1;
+        }
+      }
+      el.textContent = `${words.slice(0, low).join(" ")}…`;
+    }
+    return () => {
+      el.textContent = full;
+    };
+  }, [description, clampDescription]);
+
   const content = (
     <>
       <div className={styles.cardImageWrapper}>
@@ -81,6 +114,7 @@ export default function NewsCard({ post, className }) {
       <h3 className={styles.cardTitle}>{title}</h3>
       {description && (
         <p
+          ref={descriptionRef}
           className={clsx(
             styles.cardDescription,
             clampDescription && styles.clamped,

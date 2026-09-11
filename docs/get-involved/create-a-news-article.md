@@ -195,6 +195,8 @@ Because the cards lead off-site, the news listing and the category pages do not 
 
 That makes the summary and the `description` frontmatter more important than before: they are what a search result shows for the article page.
 
+Pagination pages (`/news/page/<n>/`) keep a self-referencing canonical and stay out of the sitemap, as before. They repeat the summaries of the posts they list, which are teasers rather than the article text.
+
 -----
 
 ## Media Content

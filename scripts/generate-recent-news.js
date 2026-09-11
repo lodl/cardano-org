@@ -13,6 +13,9 @@ const sharp = require('sharp');
 const blogDir = path.join(__dirname, '../blog');
 const outputPath = path.join(__dirname, '../src/data/recentNews.json');
 const indexPath = path.join(__dirname, '../src/data/newsIndex.json');
+// The category tiles need the counts only, so they get their own small file
+// instead of pulling the whole index (330 KB) onto every news route.
+const countsPath = path.join(__dirname, '../src/data/newsCounts.json');
 const authorsPath = path.join(__dirname, '../blog/authors.yml');
 const thumbsDir = path.join(__dirname, '../static/img/news-thumbs');
 const thumbsPublicBase = '/img/news-thumbs';
@@ -81,17 +84,27 @@ function toExcerpt(description) {
   return `${description.slice(0, DESCRIPTION_LIMIT).replace(/\s+\S*$/, '')}…`;
 }
 
+// Posts whose source had to be guessed (no "Read more" link) are collected so
+// the build can warn about them. The fallback takes the first external link in
+// the body, which is only correct while the authoring guide is followed; the
+// warning keeps a wrong card target from going unnoticed.
+const sourceUrlFallbacks = [];
+
 // Link to the original article. The authoring guide asks for a bolded
 // "Read more" link below the summary; some older posts only carry the link.
 // The grid sends readers straight there, so the card needs it.
-function extractSourceUrl(content) {
+function extractSourceUrl(content, slug) {
   const body = getPostBody(content);
   const readMore = body.match(
     /\[\s*\*{0,2}read more\*{0,2}\s*\]\((https?:\/\/[^)\s]+)\)/i,
   );
   if (readMore) return readMore[1];
   const firstExternal = body.match(/\]\((https?:\/\/[^)\s]+)\)/);
-  return firstExternal ? firstExternal[1] : null;
+  if (firstExternal) {
+    sourceUrlFallbacks.push(`${slug} -> ${firstExternal[1]}`);
+    return firstExternal[1];
+  }
+  return null;
 }
 
 // Find the post banner image. Returns the public URL to use as the card
@@ -204,7 +217,7 @@ async function main() {
       image: banner.image,
       authors: resolveAuthors(frontmatter.authors),
       tags,
-      sourceUrl: extractSourceUrl(content),
+      sourceUrl: extractSourceUrl(content, slug),
     });
   }
 
@@ -237,9 +250,22 @@ async function main() {
     `${JSON.stringify(newsIndex)}\n`,
   );
 
-  console.log(
-    `✅ Generated recentNews.json (${posts.slice(0, RECENT_COUNT).length} posts) and newsIndex.json (${posts.length} posts, ${Object.keys(tagCounts).length} tags)`,
+  // Payload for the category tiles, which render on every news route including
+  // all 451 article pages. A few hundred bytes instead of the whole index.
+  fs.writeFileSync(
+    countsPath,
+    `${JSON.stringify({ postCount: posts.length, tagCounts })}\n`,
   );
+
+  console.log(
+    `✅ Generated recentNews.json (${posts.slice(0, RECENT_COUNT).length} posts), newsIndex.json (${posts.length} posts) and newsCounts.json (${Object.keys(tagCounts).length} tags)`,
+  );
+
+  if (sourceUrlFallbacks.length) {
+    console.warn(
+      `⚠️  ${sourceUrlFallbacks.length} post(s) carry no "Read more" link, so the card falls back to the first external link in the body. Check that it is the source:\n   ${sourceUrlFallbacks.join('\n   ')}`,
+    );
+  }
 }
 
 main();

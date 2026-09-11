@@ -49,7 +49,7 @@ import NewsGrid from '@site/src/components/NewsGrid';
 | `post.author` | `{name, imageUrl}` | - | Author footer. The avatar is omitted when `imageUrl` is missing. |
 | `post.href` | `string` | - | Destination of the whole card. |
 | `post.external` | `boolean` | `false` | Opens in a new tab with `rel="noopener noreferrer"` and marks the footer with an arrow. |
-| `post.clampDescription` | `boolean` | `false` | Cuts the summary to three lines, for grids whose cards share a fixed height. |
+| `post.clampDescription` | `boolean` | `false` | Cuts the summary to three lines, for grids whose cards share a fixed height. Trims to whole words by measuring the rendered height, because the plain CSS clamp cuts at the line edge and lands mid-word. The server-rendered HTML keeps the full text. |
 | `className` | `string` | - | Extra class on the card root, used by `LatestNewsSection` to hide the fourth card onwards on small screens. |
 
 ## How a card gets its content
@@ -68,13 +68,14 @@ The lookup is keyed by slug rather than by full permalink, so it also resolves o
 
 ## Where a card leads
 
-Cards in the listing link to the original article, not to the post's page on cardano.org: the site is a hub, so the grid is an entry point to the sources. The link opens in a new tab and carries `rel="noopener noreferrer"`. Posts whose body carries no external link (none today) fall back to their own page.
+Cards in the listing link to the original article, not to the post's page on cardano.org: the site is a hub, so the grid is an entry point to the sources. The link opens in a new tab and carries `rel="noopener noreferrer"`. Posts whose body carries no external link fall back to their own page; two posts do that today (the weekly development reports of 12 and 26 January 2024).
 
 The post pages themselves stay in place and stay in the sitemap: they are what a search visitor lands on, with their own title, meta description, and canonical URL.
 
 ## Notes
 
 - Two columns above 996px, one below that.
+- Eight cards per page (`postsPerPage` in `docusaurus.config.js`): four rows of two. Every card carries the post's whole summary, so a longer page would get very long.
 - Cards in a row are stretched to a shared height by the grid, so uneven summary lengths stay tidy.
 - Only posts that carry a banner image in their body get a thumbnail of their own. Everything else falls back to the category image.
 - The "Read more" label reuses the homepage string (`latestNews.readMore`), so the wording is translated once.

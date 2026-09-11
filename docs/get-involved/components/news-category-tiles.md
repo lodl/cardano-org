@@ -46,7 +46,7 @@ import {newsPathsFromIndexPath} from '@site/src/data/newsCategories';
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `intro` | `ReactNode` | - | Lead line above the tiles. Each page passes its own (the tag description from `blog/tags.yml`, or the blog description from `docusaurus.config.js`); the article pages leave it out. |
+| `intro` | `ReactNode` | - | Lead line above the tiles. Each page passes its own (the tag description from `blog/tags.yml`, or the translated `news.index.intro` string); the article pages leave it out. |
 | `activeTag` | `string` | - | Slug of the category currently being viewed. Omitted on `/news`, where "All" is the active tile. |
 | `indexPath` | `string` | `/news/` | Path of the unfiltered listing, used by the "All" tile. |
 | `tagsBasePath` | `string` | `/news/tags/` | Tag base path the category links are appended to. |
@@ -59,10 +59,12 @@ Both paths come from the page rather than being hardcoded, because the blog plug
 
 ## Data
 
-Counts and labels come from `src/data/newsIndex.json`, which `scripts/generate-recent-news.js` writes during `yarn build-news` (part of `yarn start` and `yarn build`). The file is generated, never edited by hand.
+Counts and labels come from `src/data/newsCounts.json`, which `scripts/generate-recent-news.js` writes during `yarn build-news` (part of `yarn start` and `yarn build`). The file is generated, never edited by hand. It holds the counts only, so the tiles do not pull the full post index (about 330 KB) onto every news route, including all 451 article pages.
 
-- `posts` is every blog post with its thumbnail, excerpt, date, and tags. The grid reads it too.
+- `postCount` is the number of posts, shown on the "All" tile.
 - `tagCounts` maps each tag slug to the number of posts carrying it. A post counts once per tag, so the tag counts can add up to more than the post count.
+
+The grid reads `src/data/newsIndex.json` (the thumbnails, summaries, authors, and source URLs) instead.
 
 The tag list itself is fixed by `blog/tags.yml`, and the blog plugin is configured with `onInlineTags: 'throw'`, so a tag outside that file fails the build. `src/data/newsCategories.js` mirrors that list and is the single source of truth for the tag order, the labels, and the category images.
 

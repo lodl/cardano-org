@@ -42,8 +42,9 @@
 
 /* The active filter reads as a filled tile in its own category color, matching
    the filled pills of the app filters. The fill is a separate token from the
-   accent color because the white label needs 4.5:1 against it: two category
-   colors fall short of that and use a darker variant of the same hue. */
+   accent color because the white label needs 4.5:1 against it: the education
+   tile, and the "All" tile in dark mode, fall short of that and use a darker
+   variant of the same hue. */
 .tile[data-active="true"] {
   background: var(--tile-active-color, var(--tile-color, var(--ifm-color-primary)));
   border-color: var(--tile-active-color, var(--tile-color, var(--ifm-color-primary)));

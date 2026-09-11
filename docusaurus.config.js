@@ -172,10 +172,10 @@ const config = {
         blog: {
           showReadingTime: false,
           routeBasePath: 'news',
-          blogSidebarCount: 50,
-          // Twelve posts per page fills the card grid (three columns) without a
-          // ragged final row.
-          postsPerPage: 12,
+          // Eight posts per page: four rows of the two-column card grid, and
+          // the page stays scrollable. Every card carries the post's whole
+          // summary, so more cards would make the page very long.
+          postsPerPage: 8,
           // Only tags defined in blog/tags.yml may be used; any other tag
           // fails the build. Keeps the tag taxonomy from drifting over time.
           onInlineTags: 'throw',

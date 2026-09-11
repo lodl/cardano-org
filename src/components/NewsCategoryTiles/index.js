@@ -6,7 +6,7 @@ import {
   CATEGORY_SLUGS,
   categoryPath,
 } from "@site/src/data/newsCategories";
-import newsIndex from "@site/src/data/newsIndex.json";
+import newsCounts from "@site/src/data/newsCounts.json";
 import styles from "./styles.module.css";
 
 // Label of a category comes from blog/tags.yml through CATEGORY_LABELS; the
@@ -37,14 +37,14 @@ export default function NewsCategoryTiles({
   indexPath = "/news/",
   tagsBasePath = "/news/tags/",
 }) {
-  const counts = newsIndex.tagCounts || {};
+  const counts = newsCounts.tagCounts || {};
 
   const tiles = [
     {
       slug: "all",
       label: translate({ id: "news.category.all", message: "All" }),
       to: indexPath,
-      count: newsIndex.posts.length,
+      count: newsCounts.postCount,
       active: !activeTag,
     },
     ...CATEGORY_SLUGS.map((slug) => ({

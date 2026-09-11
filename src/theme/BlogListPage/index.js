@@ -51,9 +51,11 @@ function BlogListPageContent(props) {
     <BlogLayout fullWidth>
       {/* The heading names the page rather than the filter state (the active
           "All" tile below already shows that); the line passed to the tiles
-          covers every category. */}
+          covers every category. It is an h2, not an h1: the site hero above
+          already carries the page's h1, and the theme version of this page
+          rendered no heading at all, so this keeps one h1 per page. */}
       <header>
-        <Heading as="h1">
+        <Heading as="h2">
           {translate({id: 'news.index.title', message: 'Latest news'})}
         </Heading>
       </header>
