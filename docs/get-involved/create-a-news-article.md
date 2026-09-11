@@ -140,7 +140,7 @@ Images: `.png`, `.jpg` (or `.jpeg`), `.webp`, and `.svg`.
 
 :::tip
 
-The first inline image in the post (`![...](...)`) is also used as the article's thumbnail in the homepage news section. A relative image from the post folder is downscaled to an 800 px wide WebP at build time, an absolute `/img/...` path or a remote URL is used as is. Articles without an image fall back to an on-brand image for their primary category.
+The first inline image in the post (`![...](...)`) is also used as the article's thumbnail on the news index and in the homepage news section. A relative image from the post folder is downscaled to a 640 px wide WebP at build time, an absolute `/img/...` path or a remote URL is used as is. Articles without an image fall back to an on-brand image for their primary category.
 
 :::
 
@@ -184,6 +184,16 @@ Feel free to play around and edit this post as much as you like.
 Do not use `<!-- truncate -->` marker in the news articles as it would add another `Read more` link.
 
 :::
+
+-----
+
+## Search visibility
+
+The article page stays the search entry point. Every article keeps its own page at `/news/<slug>/` with its own title, its own meta description, and a canonical URL pointing at itself, and every one of them is listed in `sitemap.xml`. The card grid does not change that: a card is a teaser that links to the publisher, while the article page keeps the summary text.
+
+Because the cards lead off-site, the news listing and the category pages do not link to the article pages any more. The article pages are reached through the sitemap and from the news section on the homepage, and neighbours link to each other through the previous and next links.
+
+That makes the summary and the `description` frontmatter more important than before: they are what a search result shows for the article page.
 
 -----
 

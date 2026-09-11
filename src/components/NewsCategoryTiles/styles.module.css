@@ -1,0 +1,113 @@
+/* Lead line of a news view: sets the section apart from the tiles without
+   competing with the card headlines. Passed in per page (see the `intro` prop),
+   so the same markup is not repeated in every view. */
+.intro {
+  margin: 0 0 1.25rem 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  min-height: 4.25rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-top: 3px solid var(--tile-color, var(--ifm-color-primary));
+  border-radius: 10px;
+  background: var(--ifm-card-background-color);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+}
+
+.tile:hover,
+.tile:focus-visible {
+  border-color: var(--tile-color, var(--ifm-color-primary));
+  color: inherit;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+/* The active filter reads as a filled tile in its own category color, matching
+   the filled pills of the app filters. The fill is a separate token from the
+   accent color because the white label needs 4.5:1 against it: two category
+   colors fall short of that and use a darker variant of the same hue. */
+.tile[data-active="true"] {
+  background: var(--tile-active-color, var(--tile-color, var(--ifm-color-primary)));
+  border-color: var(--tile-active-color, var(--tile-color, var(--ifm-color-primary)));
+  color: #fff;
+}
+
+.tileLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.tileCount {
+  font-size: 0.75rem;
+  color: var(--ifm-color-emphasis-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.tile[data-active="true"] .tileCount {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Category colors, shared with the card badges in NewsGrid and LatestNewsSection. */
+.tile[data-category="all"] { --tile-color: var(--ifm-color-primary); }
+.tile[data-category="development"] { --tile-color: #2563a8; }
+.tile[data-category="research"] { --tile-color: #6b46c1; }
+.tile[data-category="governance"] { --tile-color: #2f855a; }
+.tile[data-category="community"] { --tile-color: #c05621; }
+.tile[data-category="ecosystem"] { --tile-color: #2c5282; }
+.tile[data-category="education"] { --tile-color: #b7791f; --tile-active-color: #8a5a15; }
+.tile[data-category="events"] { --tile-color: #b83280; }
+
+/* The dark palette primary is a light blue, which white text cannot sit on. */
+html[data-theme="dark"] .tile[data-category="all"] {
+  --tile-active-color: var(--ifm-color-primary-darkest);
+}
+
+/* Below the desktop breakpoint the row becomes a scroll-snap track instead of
+   shrinking every tile into an unreadable sliver. */
+@media (max-width: 996px) {
+  .tiles {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 8.5rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tile {
+    scroll-snap-align: start;
+    min-height: 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tiles {
+    grid-auto-columns: 7.5rem;
+    gap: 0.5rem;
+  }
+
+  .tile {
+    padding: 0.625rem 0.75rem;
+  }
+}

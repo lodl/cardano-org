@@ -1,0 +1,147 @@
+/* The news card, shared by the homepage section (LatestNewsSection) and the news
+   listing (NewsGrid). */
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: var(--ifm-card-background-color);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden; /* clip the full-bleed thumbnail to the card radius */
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  border-color: var(--ifm-color-primary);
+  text-decoration: none;
+  color: inherit;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+html[data-theme='dark'] .card:hover,
+html[data-theme='dark'] .card:focus-visible {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+.cardImageWrapper {
+  position: relative;
+  margin: -1.5rem -1.5rem 1.25rem; /* bleed to the card edges */
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--ifm-color-emphasis-200);
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.cardDate {
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.categoryBadge {
+  flex-shrink: 0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--ifm-color-primary);
+}
+
+/* Category colors, shared with the news category tiles. */
+.categoryBadge[data-category="development"] { background: #2563a8; }
+.categoryBadge[data-category="research"] { background: #6b46c1; }
+.categoryBadge[data-category="governance"] { background: #2f855a; }
+.categoryBadge[data-category="community"] { background: #c05621; }
+.categoryBadge[data-category="ecosystem"] { background: #2c5282; }
+.categoryBadge[data-category="education"] { background: #b7791f; }
+.categoryBadge[data-category="events"] { background: #b83280; }
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  color: var(--ifm-heading-color);
+  line-height: 1.4;
+}
+
+.cardDescription {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--ifm-color-emphasis-700);
+  margin: 0;
+}
+
+/* Clamped variant: three lines, for grids whose cards share a fixed height
+   (the homepage section). The listing prints the whole summary instead. */
+.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.authorInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.authorAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.authorName {
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-600);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Where the card leads: the original article, on another site. */
+.cardSource {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ifm-color-primary);
+  white-space: nowrap;
+}
