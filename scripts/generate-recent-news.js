@@ -268,4 +268,16 @@ async function main() {
   }
 }
 
-main();
+// Exported for scripts/test-news-index.js, so the text handling can be tested
+// without walking the blog directory. Requiring this file still reads
+// blog/authors.yml and the post list at module level.
+module.exports = {
+  getPostBody,
+  extractDescription,
+  toExcerpt,
+  extractSourceUrl,
+};
+
+if (require.main === module) {
+  main();
+}
