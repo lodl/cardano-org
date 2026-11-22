@@ -8,6 +8,7 @@
 .docusaurus
 .cache-loader
 src/data/recentNews.json
+src/data/newsIndex.json
 src/data/apps-metadata.json
 src/data/forum-topics.json
 static/apps.llms.txt

@@ -1,6 +1,6 @@
 //
-// Generates recentNews.json from blog post frontmatter for use on the homepage
-// and other pages. Similar to generate-authors-json.js but for news data.
+// Generates recentNews.json and newsIndex.json from blog post frontmatter for
+// use on the homepage, /news, /news/tags/*, and related-news blocks.
 // Command: yarn run build-news
 //
 
@@ -12,10 +12,11 @@ const { selectFeed } = require('./lib/news-feed.js');
 
 const blogDir = path.join(__dirname, '../blog');
 const outputPath = path.join(__dirname, '../src/data/recentNews.json');
+const indexOutputPath = path.join(__dirname, '../src/data/newsIndex.json');
 const authorsPath = path.join(__dirname, '../blog/authors.yml');
 const thumbsDir = path.join(__dirname, '../static/img/news-thumbs');
 const thumbsPublicBase = '/img/news-thumbs';
-
+const THUMB_CONCURRENCY = 8;
 
 // Load authors for resolving author keys
 const authorsYaml = fs.readFileSync(authorsPath, 'utf8');
@@ -62,42 +63,95 @@ function extractDescription(content) {
     .replace(/`([^`]+)`/g, '$1'); // `code` -> code
 }
 
+// Extract embedded YouTube video ID from iframe embeds if present.
+function extractYoutubeId(content) {
+  const body = getPostBody(content);
+  const match = body.match(
+    /<iframe[^>]+src=["']https?:\/\/(?:www\.)?(?:youtube-nocookie\.com|youtube\.com)\/embed\/([a-zA-Z0-9_-]{11})/i
+  );
+  return match ? match[1] : null;
+}
+
+// Extract the primary external source CTA link and stripped hostname.
+function extractExternalLink(content) {
+  const body = getPostBody(content);
+  const match = body.match(
+    /\[\*\*(?:Read more|Watch now|Listen now|Learn more|Explore|View|Download)[^*]*\*\*\]\((https?:\/\/[^)\s]+)\)/i
+  );
+  if (!match) return { externalUrl: null, externalHost: null };
+  const externalUrl = match[1];
+  try {
+    const externalHost = new URL(externalUrl).hostname.replace(/^www\./i, '');
+    return { externalUrl, externalHost };
+  } catch {
+    return { externalUrl: null, externalHost: null };
+  }
+}
+
 // Find the post banner image and, for in-post files, emit a downscaled WebP
-// thumbnail under static/. Returns a web URL usable as a card thumbnail, or
-// null when the post has no usable image (component falls back to default).
+// thumbnail under static/. Returns { url, thumbFile } where thumbFile is the
+// basename written to thumbsDir (or null for remote/public/missing images).
 async function resolveThumbnail(dir, content, slug) {
   const body = getPostBody(content);
 
   // First inline markdown image, e.g. ![alt](./banner.webp "title")
   const imgMatch = body.match(/!\[[^\]]*\]\(([^)]+)\)/);
-  if (!imgMatch) return null;
+  if (!imgMatch) return { url: null, thumbFile: null };
 
   // Drop an optional title after the URL, and any surrounding whitespace
   const rawUrl = imgMatch[1].trim().split(/\s+/)[0];
 
   // Remote or already-public paths can be used as-is
-  if (/^https?:\/\//.test(rawUrl) || rawUrl.startsWith('/')) return rawUrl;
+  if (/^https?:\/\//.test(rawUrl) || rawUrl.startsWith('/')) {
+    return { url: rawUrl, thumbFile: null };
+  }
 
   // In-post relative asset: resolve on disk and emit a small WebP thumbnail
   const rel = rawUrl.replace(/^\.\//, '');
   const srcPath = path.join(blogDir, dir, rel);
-  if (!fs.existsSync(srcPath)) return null;
+  if (!fs.existsSync(srcPath)) return { url: null, thumbFile: null };
 
   const destName = `${slug}.webp`;
-  await sharp(srcPath)
-    .resize({ width: 800, withoutEnlargement: true })
-    .webp({ quality: 80 })
-    .toFile(path.join(thumbsDir, destName));
-  return `${thumbsPublicBase}/${destName}`;
+  const destPath = path.join(thumbsDir, destName);
+  const srcStat = fs.statSync(srcPath);
+  let needsBuild = true;
+  if (fs.existsSync(destPath)) {
+    const destStat = fs.statSync(destPath);
+    if (destStat.mtimeMs >= srcStat.mtimeMs) {
+      needsBuild = false;
+    }
+  }
+
+  if (needsBuild) {
+    await sharp(srcPath)
+      .resize({ width: 800, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(destPath);
+  }
+
+  return { url: `${thumbsPublicBase}/${destName}`, thumbFile: destName };
 }
 
-// Resolve author keys to name + imageUrl
+// Resolve author keys to name + imageUrl (homepage schema)
 function resolveAuthors(authorKeys) {
   if (!authorKeys) return [];
   const keys = Array.isArray(authorKeys) ? authorKeys : [authorKeys];
   return keys
     .filter((key) => authors[key])
     .map((key) => ({
+      name: authors[key].name,
+      imageUrl: authors[key].image_url,
+    }));
+}
+
+// Resolve author keys to key + name + imageUrl (newsIndex schema)
+function resolveAuthorsWithKeys(authorKeys) {
+  if (!authorKeys) return [];
+  const keys = Array.isArray(authorKeys) ? authorKeys : [authorKeys];
+  return keys
+    .filter((key) => authors[key])
+    .map((key) => ({
+      key,
       name: authors[key].name,
       imageUrl: authors[key].image_url,
     }));
@@ -126,30 +180,81 @@ function loadCandidates() {
   return candidates;
 }
 
-async function main() {
-  // Start from a clean thumbnails directory so stale banners don't linger
-  fs.rmSync(thumbsDir, { recursive: true, force: true });
-  fs.mkdirSync(thumbsDir, { recursive: true });
+async function mapWithConcurrency(items, concurrency, worker) {
+  const results = new Array(items.length);
+  let cursor = 0;
 
-  const recentNews = [];
-
-  for (const { dir, content, date, frontmatter, tags } of selectFeed(loadCandidates())) {
-    const slug = frontmatter.slug || dir;
-    const description = frontmatter.description || extractDescription(content);
-
-    recentNews.push({
-      title: frontmatter.title,
-      permalink: `/news/${slug}`,
-      date,
-      description,
-      image: await resolveThumbnail(dir, content, slug),
-      authors: resolveAuthors(frontmatter.authors),
-      tags,
-    });
+  async function runNext() {
+    while (cursor < items.length) {
+      const idx = cursor;
+      cursor += 1;
+      results[idx] = await worker(items[idx], idx);
+    }
   }
 
+  const runners = Array.from({ length: Math.min(concurrency, items.length) }, () => runNext());
+  await Promise.all(runners);
+  return results;
+}
+
+async function main() {
+  fs.mkdirSync(thumbsDir, { recursive: true });
+
+  const candidates = loadCandidates();
+  const activeThumbs = new Set();
+
+  const resolvedAll = await mapWithConcurrency(candidates, THUMB_CONCURRENCY, async (candidate) => {
+    const { dir, content, date, frontmatter, tags } = candidate;
+    const slug = frontmatter.slug || dir;
+    const description = frontmatter.description || extractDescription(content);
+    const { url: image, thumbFile } = await resolveThumbnail(dir, content, slug);
+    if (thumbFile) activeThumbs.add(thumbFile);
+
+    const youtubeId = extractYoutubeId(content);
+    const { externalUrl, externalHost } = extractExternalLink(content);
+
+    return {
+      candidate,
+      slug,
+      entry: {
+        slug,
+        title: frontmatter.title,
+        permalink: `/news/${slug}`,
+        date,
+        description,
+        image,
+        youtubeId,
+        externalUrl,
+        externalHost,
+        authors: resolveAuthorsWithKeys(frontmatter.authors),
+        tags,
+      },
+      recentEntry: {
+        title: frontmatter.title,
+        permalink: `/news/${slug}`,
+        date,
+        description,
+        image,
+        authors: resolveAuthors(frontmatter.authors),
+        tags,
+      },
+    };
+  });
+
+  // Remove orphaned thumbnails left behind by deleted or renamed posts.
+  for (const file of fs.readdirSync(thumbsDir)) {
+    if (!activeThumbs.has(file)) {
+      fs.rmSync(path.join(thumbsDir, file), { force: true });
+    }
+  }
+
+  const byCandidate = new Map(resolvedAll.map((item) => [item.candidate, item]));
+  const recentNews = selectFeed(candidates).map((c) => byCandidate.get(c).recentEntry);
+  const newsIndex = resolvedAll.map((item) => item.entry);
+
   fs.writeFileSync(outputPath, JSON.stringify(recentNews, null, 2));
-  console.log(`✅ Generated recentNews.json with ${recentNews.length} posts`);
+  fs.writeFileSync(indexOutputPath, JSON.stringify(newsIndex, null, 2));
+  console.log(`Generated recentNews.json (${recentNews.length} posts) and newsIndex.json (${newsIndex.length} posts)`);
 }
 
 main();

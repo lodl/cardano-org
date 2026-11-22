@@ -1,0 +1,201 @@
+.newsBar {
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-background-surface-color);
+}
+
+.newsBarInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--site-space-xs);
+  padding-top: var(--site-space-xs);
+  padding-bottom: var(--site-space-xs);
+}
+
+.breadcrumbNav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.crumbSep {
+  color: var(--ifm-color-emphasis-400);
+  font-size: 0.85rem;
+}
+
+.crumbCategory {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ifm-color-emphasis-700);
+  text-decoration: none;
+}
+
+.crumbCategory:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.barLinks {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--site-space-md);
+}
+
+.barLink {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ifm-color-emphasis-700);
+  text-decoration: none;
+}
+
+.barLink:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+:global(html[data-theme="dark"]) .backLink,
+:global(html[data-theme="dark"]) .crumbCategory:hover,
+:global(html[data-theme="dark"]) .barLink:hover {
+  color: var(--ifm-color-primary-light);
+}
+
+.contentWrap {
+  padding-top: var(--site-space-xl);
+  padding-bottom: var(--site-space-lg);
+}
+
+.readingGrid {
+  max-width: 740px;
+  margin: 0 auto;
+}
+
+.readingGridToc {
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 740px) minmax(200px, 250px);
+  gap: var(--site-space-xl);
+  justify-content: center;
+  align-items: start;
+}
+
+.articleBody {
+  min-width: 0;
+}
+
+.articleBody :global(article) {
+  padding-bottom: var(--site-space-md);
+}
+
+.articleBody :global(article header h1) {
+  font-size: clamp(2rem, 3.8vw, 2.85rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin-top: 0;
+  margin-bottom: var(--site-space-sm);
+  text-wrap: balance;
+}
+
+.articleBody :global(.markdown) {
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+/* Auto-elevate the in-post external Read more / Watch now link into a
+   clean editorial CTA pill without touching any markdown files. */
+.articleBody :global(.markdown div[style*="text-align: right"]),
+.articleBody :global(.markdown div[style*="text-align:right"]) {
+  text-align: left !important;
+  margin: var(--site-space-md) 0 var(--site-space-lg);
+}
+
+.articleBody :global(.markdown div[style*="text-align: right"] a),
+.articleBody :global(.markdown div[style*="text-align:right"] a) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.7rem 1.45rem;
+  border-radius: var(--site-radius-pill);
+  background: var(--ifm-color-primary);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--site-duration-fast) var(--site-ease),
+    transform var(--site-duration-fast) var(--site-ease);
+}
+
+.articleBody :global(.markdown div[style*="text-align: right"] a:hover),
+.articleBody :global(.markdown div[style*="text-align:right"] a:hover) {
+  background: var(--ifm-color-primary-dark);
+  color: #ffffff;
+  transform: translateY(var(--site-lift-xs));
+  text-decoration: none;
+}
+
+:global(html[data-theme="dark"])
+  .articleBody
+  :global(.markdown div[style*="text-align: right"] a),
+:global(html[data-theme="dark"])
+  .articleBody
+  :global(.markdown div[style*="text-align:right"] a) {
+  background: var(--ifm-color-primary-darker);
+}
+
+:global(html[data-theme="dark"])
+  .articleBody
+  :global(.markdown div[style*="text-align: right"] a:hover),
+:global(html[data-theme="dark"])
+  .articleBody
+  :global(.markdown div[style*="text-align:right"] a:hover) {
+  background: var(--ifm-color-primary-dark);
+}
+
+.articleBody :global(.markdown img) {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--site-radius-lg);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  margin-top: var(--site-space-md);
+}
+
+.articleBody :global(.markdown iframe) {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--site-radius-lg);
+  border: 0;
+  margin-top: var(--site-space-md);
+  box-shadow: var(--site-shadow-md);
+}
+
+.tocCol {
+  position: sticky;
+  top: calc(var(--ifm-navbar-height, 80px) + var(--site-space-md));
+}
+
+@media (max-width: 996px) {
+  .readingGridToc {
+    grid-template-columns: 1fr;
+  }
+
+  .tocCol {
+    display: none;
+  }
+}

@@ -1,0 +1,50 @@
+.section {
+  margin-top: var(--site-space-2xl);
+  padding-top: var(--site-space-xl);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--site-space-sm) var(--site-space-md);
+  margin-bottom: var(--site-space-lg);
+}
+
+.eyebrow {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ifm-color-primary);
+}
+
+:global(html[data-theme="dark"]) .eyebrow,
+:global(html[data-theme="dark"]) .allLink {
+  color: var(--ifm-color-primary-light);
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.allLink {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.allLink:hover {
+  text-decoration: underline;
+}
+
+.grid {
+  margin-top: 0;
+}
