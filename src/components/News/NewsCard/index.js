@@ -21,6 +21,27 @@ const VARIANT_CLASSES = {
   cinema: styles.cardCinema,
 };
 
+function CtaChevron() {
+  return (
+    <svg
+      className={styles.ctaChevron}
+      viewBox="0 0 14 14"
+      width="13"
+      height="13"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M5 3L9 7L5 11"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /**
  * Editorial news card supporting grid, lead, spotlight, wire row, and cinema
  * video variants.
@@ -74,6 +95,7 @@ export default function NewsCard({
     return (
       <Link
         to={post.permalink}
+        data-category={primaryCategory || undefined}
         className={clsx(styles.card, styles.cardRow, className)}
       >
         <div className={styles.rowDateCol}>
@@ -87,15 +109,14 @@ export default function NewsCard({
 
         <div className={styles.rowMainCol}>
           <div className={styles.eyebrow}>
-            {primaryCategory && (
-              <span
-                className={styles.catDot}
-                data-category={primaryCategory}
-                aria-hidden="true"
-              />
-            )}
             {categoryLabel && (
-              <span className={styles.catLabel}>{categoryLabel}</span>
+              <span
+                className={styles.catPill}
+                data-category={primaryCategory || undefined}
+              >
+                <span className={styles.catDot} aria-hidden="true" />
+                <span className={styles.catLabel}>{categoryLabel}</span>
+              </span>
             )}
             {post.youtubeId && (
               <span className={styles.inlineVideoTag}>
@@ -108,7 +129,8 @@ export default function NewsCard({
             <p className={styles.rowDesc}>{post.description}</p>
           )}
           <span className={styles.rowSource}>
-            {post.externalHost || ctaText}
+            <span>{post.externalHost || ctaText}</span>
+            <CtaChevron />
           </span>
         </div>
 
@@ -138,6 +160,7 @@ export default function NewsCard({
   return (
     <Link
       to={post.permalink}
+      data-category={primaryCategory || undefined}
       className={clsx(
         styles.card,
         VARIANT_CLASSES[activeVariant] || styles.cardGrid,
@@ -184,19 +207,15 @@ export default function NewsCard({
         )}
 
         <div className={styles.eyebrow}>
-          {primaryCategory && (
-            <span
-              className={styles.catDot}
-              data-category={primaryCategory}
-              aria-hidden="true"
-            />
-          )}
           {categoryLabel && (
-            <span className={styles.catLabel}>{categoryLabel}</span>
+            <span
+              className={styles.catPill}
+              data-category={primaryCategory || undefined}
+            >
+              <span className={styles.catDot} aria-hidden="true" />
+              <span className={styles.catLabel}>{categoryLabel}</span>
+            </span>
           )}
-          <span className={styles.eyebrowSep} aria-hidden="true">
-            ·
-          </span>
           <time className={styles.date} dateTime={post.date}>
             {formattedDate}
           </time>
@@ -223,11 +242,14 @@ export default function NewsCard({
             )}
           </div>
           <span className={styles.cta}>
-            {isLead
-              ? ctaText
-              : post.externalHost
-                ? post.externalHost
-                : ctaText}
+            <span>
+              {isLead
+                ? ctaText
+                : post.externalHost
+                  ? post.externalHost
+                  : ctaText}
+            </span>
+            <CtaChevron />
           </span>
         </div>
       </div>

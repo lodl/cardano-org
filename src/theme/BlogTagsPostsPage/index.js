@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useId, useMemo, useState } from "react";
 import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import Translate, { translate } from "@docusaurus/Translate";
@@ -15,7 +15,6 @@ import BoundaryBox from "@site/src/components/Layout/BoundaryBox";
 import Grid from "@site/src/components/Layout/Grid";
 import OpenGraphInfo from "@site/src/components/Layout/OpenGraphInfo";
 import PageCTA from "@site/src/components/Layout/PageCTA";
-import SpacerBox from "@site/src/components/Layout/SpacerBox";
 import NewsCard from "@site/src/components/News/NewsCard";
 import newsIndex from "@site/src/data/newsIndex.json";
 import {
@@ -66,10 +65,18 @@ export default function BlogTagsPostsPage(props) {
   const restPosts = hasLead ? matchingPosts.slice(1) : matchingPosts;
 
   const initialCount = Math.max(1, pageNumber) * PAGE_SIZE;
-  const [visibleCount, setVisibleCount] = useState(initialCount);
+  const [pagination, setPagination] = useState({
+    key: tagKey,
+    count: initialCount,
+  });
+  const visibleCount =
+    pagination.key === tagKey ? pagination.count : initialCount;
   const visibleRest = restPosts.slice(0, visibleCount);
   const canLoadMore = visibleCount < restPosts.length;
   const totalShown = (leadPost ? 1 : 0) + visibleRest.length;
+
+  const rawId = useId().replace(/:/g, "");
+  const arcGradId = `tag-meridian-arc-${rawId}`;
 
   return (
     <HtmlClassNameProvider
@@ -84,7 +91,10 @@ export default function BlogTagsPostsPage(props) {
         <main className={styles.main}>
           {tag.unlisted && <Unlisted />}
 
-          <header className={styles.masthead}>
+          <header
+            className={styles.masthead}
+            data-category={tagKey || "ecosystem"}
+          >
             <svg
               className={styles.mastheadSvg}
               viewBox="0 0 1440 320"
@@ -92,21 +102,28 @@ export default function BlogTagsPostsPage(props) {
               aria-hidden="true"
             >
               <defs>
-                <radialGradient id="tag-bloom" cx="84%" cy="18%" r="55%">
-                  <stop offset="0%" stopColor="#6684ce" stopOpacity="0.32" />
-                  <stop offset="100%" stopColor="#061334" stopOpacity="0" />
-                </radialGradient>
-                <linearGradient id="tag-arc" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
-                  <stop offset="50%" stopColor="#ffffff" stopOpacity="0.18" />
-                  <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                <linearGradient
+                  id={arcGradId}
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stopColor="#C7C2E6" stopOpacity="0" />
+                  <stop offset="50%" stopColor="#FFFAF3" stopOpacity="0.24" />
+                  <stop offset="100%" stopColor="#2FB7A8" stopOpacity="0.06" />
                 </linearGradient>
               </defs>
-              <rect width="1440" height="320" fill="url(#tag-bloom)" />
-              <g fill="none" stroke="url(#tag-arc)" strokeWidth="0.9">
-                <circle cx="1180" cy="60" r="160" />
-                <circle cx="1180" cy="60" r="290" />
-                <circle cx="1180" cy="60" r="430" />
+              <g fill="none" stroke={`url(#${arcGradId})`} strokeWidth="1">
+                <circle cx="1160" cy="70" r="145" />
+                <circle cx="1160" cy="70" r="265" />
+                <circle cx="1160" cy="70" r="395" />
+                <circle cx="1160" cy="70" r="535" />
+              </g>
+              <g fill="currentColor" className={styles.mastheadPulses}>
+                <circle cx="1015" cy="70" r="3.2" />
+                <circle cx="940" cy="218" r="2.6" />
+                <circle cx="1290" cy="185" r="2.8" />
               </g>
             </svg>
 
@@ -180,7 +197,12 @@ export default function BlogTagsPostsPage(props) {
                       )}
                       aria-current={active ? "page" : undefined}
                     >
-                      {categoryLabels[slug]}
+                      <span
+                        className={styles.tabDot}
+                        data-category={slug}
+                        aria-hidden="true"
+                      />
+                      <span>{categoryLabels[slug]}</span>
                     </Link>
                   );
                 })}
@@ -216,8 +238,16 @@ export default function BlogTagsPostsPage(props) {
                 {canLoadMore && (
                   <button
                     type="button"
-                    className="button button--primary button--lg"
-                    onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                    className={clsx(
+                      "button button--primary button--lg",
+                      styles.loadMoreBtn
+                    )}
+                    onClick={() =>
+                      setPagination({
+                        key: tagKey,
+                        count: visibleCount + PAGE_SIZE,
+                      })
+                    }
                   >
                     <Translate id="news.list.loadMore">
                       Load more articles
@@ -239,32 +269,32 @@ export default function BlogTagsPostsPage(props) {
             </BoundaryBox>
           </section>
 
-          <SpacerBox size="medium" />
-
-          <PageCTA
-            variant="primary"
-            title={translate({
-              id: "news.cta.title",
-              message: "Have a Cardano story to share?",
-            })}
-            description={translate({
-              id: "news.cta.description",
-              message:
-                "Cardano News is curated by the community. Submit a concise article summary or subscribe to the bi-weekly Community Digest.",
-            })}
-            href="/docs/get-involved/create-a-news-article"
-            buttonText={translate({
-              id: "news.cta.submitButton",
-              message: "Submit a News Article",
-            })}
-            secondaryButton={{
-              href: "/newsletter",
-              label: translate({
-                id: "news.cta.newsletterButton",
-                message: "Subscribe to Newsletter",
-              }),
-            }}
-          />
+          <div className={styles.ctaWrap}>
+            <PageCTA
+              variant="primary"
+              title={translate({
+                id: "news.cta.title",
+                message: "Have a Cardano story to share?",
+              })}
+              description={translate({
+                id: "news.cta.description",
+                message:
+                  "Cardano News is curated by the community. Submit a concise article summary or subscribe to the bi-weekly Community Digest.",
+              })}
+              href="/docs/get-involved/create-a-news-article"
+              buttonText={translate({
+                id: "news.cta.submitButton",
+                message: "Submit a News Article",
+              })}
+              secondaryButton={{
+                href: "/newsletter",
+                label: translate({
+                  id: "news.cta.newsletterButton",
+                  message: "Subscribe to Newsletter",
+                }),
+              }}
+            />
+          </div>
         </main>
       </Layout>
     </HtmlClassNameProvider>

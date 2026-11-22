@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "@docusaurus/Link";
-import Translate, { translate } from "@docusaurus/Translate";
+import Translate from "@docusaurus/Translate";
 import Grid from "@site/src/components/Layout/Grid";
 import NewsCard from "@site/src/components/News/NewsCard";
 import newsIndex from "@site/src/data/newsIndex.json";
@@ -36,6 +36,22 @@ export default function RelatedNews({ currentSlug, tags = [] }) {
         </div>
         <Link to="/news" className={styles.allLink}>
           <Translate id="news.related.viewAll">View all news</Translate>
+          <svg
+            className={styles.allIcon}
+            viewBox="0 0 14 14"
+            width="13"
+            height="13"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M5 3L9 7L5 11"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </Link>
       </div>
 

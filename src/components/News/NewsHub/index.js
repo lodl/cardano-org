@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
 import Link from "@docusaurus/Link";
@@ -83,37 +83,198 @@ function scrollToStories() {
   el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
 }
 
-// Architectural meridian backdrop in pure SVG: smooth fading solid strokes and
-// atmospheric radial bloom, zero noisy dashed lines.
-function MastheadBackdrop() {
-  return (
-    <svg
-      className={styles.mastheadSvg}
-      viewBox="0 0 1440 400"
-      preserveAspectRatio="xMidYMid slice"
-      aria-hidden="true"
-    >
-      <defs>
-        <radialGradient id="newsroom-bloom" cx="82%" cy="18%" r="58%">
-          <stop offset="0%" stopColor="#6684ce" stopOpacity="0.34" />
-          <stop offset="55%" stopColor="#1d4ed8" stopOpacity="0.1" />
-          <stop offset="100%" stopColor="#061334" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id="newsroom-arc" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
-          <stop offset="48%" stopColor="#ffffff" stopOpacity="0.18" />
-          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <rect width="1440" height="400" fill="url(#newsroom-bloom)" />
-      <g fill="none" stroke="url(#newsroom-arc)" strokeWidth="0.9">
-        <circle cx="1180" cy="70" r="180" />
-        <circle cx="1180" cy="70" r="320" />
-        <circle cx="1180" cy="70" r="470" />
-        <circle cx="1180" cy="70" r="640" />
-      </g>
-    </svg>
-  );
+const MERIDIAN_PULSES = [
+  { ring: 0, speed: 0.00018, phase: 0.4, radius: 2.8, color: "#FFB122", glow: true },
+  { ring: 0, speed: 0.00018, phase: 3.55, radius: 2.2, color: "#2FB7A8", glow: false },
+  { ring: 1, speed: -0.00013, phase: 1.1, radius: 2.5, color: "#2FB7A8", glow: true },
+  { ring: 1, speed: -0.00013, phase: 4.3, radius: 2.0, color: "#C7C2E6", glow: false },
+  { ring: 2, speed: 0.0001, phase: 2.2, radius: 3.0, color: "#FFB122", glow: true },
+  { ring: 2, speed: 0.0001, phase: 5.1, radius: 2.1, color: "#968CC3", glow: false },
+  { ring: 3, speed: -0.00008, phase: 0.8, radius: 2.4, color: "#968CC3", glow: false },
+  { ring: 3, speed: -0.00008, phase: 3.1, radius: 2.6, color: "#2FB7A8", glow: true },
+  { ring: 1, speed: 0.00015, phase: 2.75, radius: 1.9, color: "#FFFAF3", glow: false },
+  { ring: 2, speed: -0.00011, phase: 3.85, radius: 2.2, color: "#FFB122", glow: false },
+];
+
+/**
+ * Ambient Cardano Dispatch Meridian orbital visualization for the masthead.
+ * Pauses off-screen and collapses to a static constellation under reduced motion.
+ */
+function DispatchMeridianCanvas() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (!ExecutionEnvironment.canUseDOM) return undefined;
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return undefined;
+
+    const motionQuery = window.matchMedia
+      ? window.matchMedia("(prefers-reduced-motion: reduce)")
+      : null;
+
+    let width = 0;
+    let height = 0;
+    let rafId = null;
+    let inView = true;
+
+    const measure = () => {
+      const rect = canvas.getBoundingClientRect();
+      width = Math.max(1, Math.round(rect.width));
+      height = Math.max(1, Math.round(rect.height));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const drawFrame = (timestamp) => {
+      ctx.clearRect(0, 0, width, height);
+
+      const cx = width * 0.8;
+      const cy = height * 0.28;
+      const base = Math.max(220, Math.min(width * 0.42, 420));
+      const radii = [base * 0.48, base * 0.82, base * 1.18, base * 1.56];
+
+      const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, radii[2]);
+      halo.addColorStop(0, "rgba(150, 140, 195, 0.22)");
+      halo.addColorStop(0.5, "rgba(47, 183, 168, 0.08)");
+      halo.addColorStop(1, "rgba(0, 6, 41, 0)");
+      ctx.fillStyle = halo;
+      ctx.fillRect(0, 0, width, height);
+
+      radii.forEach((r, idx) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle =
+          idx % 2 === 0
+            ? "rgba(199, 194, 230, 0.16)"
+            : "rgba(47, 183, 168, 0.12)";
+        ctx.lineWidth = idx === 1 ? 1.1 : 0.85;
+        ctx.stroke();
+      });
+
+      // Sweeping signal arcs
+      const sweepColors = [
+        "rgba(255, 177, 34, 0.28)",
+        "rgba(47, 183, 168, 0.26)",
+        "rgba(150, 140, 195, 0.24)",
+      ];
+      [1, 2, 3].forEach((ringIdx, i) => {
+        const angle = timestamp * (0.00009 * (i % 2 === 0 ? 1 : -1)) + i * 2.1;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radii[ringIdx], angle, angle + 0.52);
+        ctx.strokeStyle = sweepColors[i];
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+      });
+
+      // Orbital dispatch pulses
+      MERIDIAN_PULSES.forEach((pulse) => {
+        const r = radii[pulse.ring];
+        const theta = pulse.phase + timestamp * pulse.speed;
+        const px = cx + Math.cos(theta) * r;
+        const py = cy + Math.sin(theta) * r;
+
+        if (pulse.glow) {
+          ctx.beginPath();
+          ctx.arc(px, py, pulse.radius * 3.1, 0, Math.PI * 2);
+          ctx.fillStyle =
+            pulse.color === "#FFB122"
+              ? "rgba(255, 177, 34, 0.22)"
+              : "rgba(47, 183, 168, 0.2)";
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(px, py, pulse.radius, 0, Math.PI * 2);
+        ctx.fillStyle = pulse.color;
+        ctx.fill();
+      });
+    };
+
+    const stopLoop = () => {
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+
+    const tick = (now) => {
+      drawFrame(now);
+      if (
+        inView &&
+        document.visibilityState === "visible" &&
+        !(motionQuery && motionQuery.matches)
+      ) {
+        rafId = window.requestAnimationFrame(tick);
+      } else {
+        rafId = null;
+      }
+    };
+
+    const syncPlayback = () => {
+      if (motionQuery && motionQuery.matches) {
+        stopLoop();
+        drawFrame(1400);
+        return;
+      }
+      if (inView && document.visibilityState === "visible") {
+        if (rafId === null) {
+          rafId = window.requestAnimationFrame(tick);
+        }
+      } else {
+        stopLoop();
+      }
+    };
+
+    measure();
+    syncPlayback();
+
+    let resizeObserver = null;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        measure();
+        if (motionQuery && motionQuery.matches) {
+          drawFrame(1400);
+        }
+      });
+      resizeObserver.observe(canvas);
+    }
+
+    let intersectionObserver = null;
+    if (typeof IntersectionObserver !== "undefined") {
+      intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          inView = Boolean(entries[0]?.isIntersecting);
+          syncPlayback();
+        },
+        { threshold: 0.02 }
+      );
+      intersectionObserver.observe(canvas);
+    }
+
+    const onVisibility = () => syncPlayback();
+    document.addEventListener("visibilitychange", onVisibility);
+
+    const onMotionChange = () => syncPlayback();
+    if (motionQuery && motionQuery.addEventListener) {
+      motionQuery.addEventListener("change", onMotionChange);
+    }
+
+    return () => {
+      stopLoop();
+      if (resizeObserver) resizeObserver.disconnect();
+      if (intersectionObserver) intersectionObserver.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+      if (motionQuery && motionQuery.removeEventListener) {
+        motionQuery.removeEventListener("change", onMotionChange);
+      }
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className={styles.mastheadCanvas} aria-hidden="true" />;
 }
 
 /**
@@ -222,6 +383,17 @@ export default function NewsHub({ initialPage = 1 }) {
   const latestVideos = useMemo(() => selectLatestVideos(newsIndex, 3), []);
   const filterOptions = useMemo(() => collectFilterOptions(newsIndex), []);
 
+  const editionStats = useMemo(() => {
+    const sortedYears = [...filterOptions.years].sort();
+    const firstYear = sortedYears[0] || null;
+    const latestYear = sortedYears[sortedYears.length - 1] || null;
+    const latestYearCount = latestYear
+      ? newsIndex.filter((post) => (post.date || "").startsWith(latestYear))
+          .length
+      : 0;
+    return { firstYear, latestYear, latestYearCount };
+  }, [filterOptions.years]);
+
   const showcaseSlugs = useMemo(() => {
     const set = new Set();
     if (showcase.lead) set.add(showcase.lead.slug);
@@ -260,6 +432,67 @@ export default function NewsHub({ initialPage = 1 }) {
     }),
   };
 
+  const authorLookup = useMemo(() => {
+    const map = new Map();
+    for (const item of filterOptions.authors) {
+      map.set(item.key, item.name);
+    }
+    return map;
+  }, [filterOptions.authors]);
+
+  const activeChips = [];
+  if (filters.category) {
+    activeChips.push({
+      id: "category",
+      label: categoryLabels[filters.category] || filters.category,
+      onRemove: () => updateFilters({ category: null }),
+    });
+  }
+  if (filters.scope !== "all") {
+    activeChips.push({
+      id: "scope",
+      label:
+        filters.scope === "editorial"
+          ? translate({
+              id: "news.filter.typeEditorial",
+              message: "Feature Stories",
+            })
+          : translate({
+              id: "news.filter.typeBriefings",
+              message: "Weekly Briefings",
+            }),
+      onRemove: () => updateFilters({ scope: "all" }),
+    });
+  }
+  if (filters.format === "video") {
+    activeChips.push({
+      id: "format",
+      label: translate({ id: "news.card.video", message: "Video" }),
+      onRemove: () => updateFilters({ format: "all" }),
+    });
+  }
+  if (filters.author) {
+    activeChips.push({
+      id: "author",
+      label: authorLookup.get(filters.author) || filters.author,
+      onRemove: () => updateFilters({ author: null }),
+    });
+  }
+  if (filters.year) {
+    activeChips.push({
+      id: "year",
+      label: filters.year,
+      onRemove: () => updateFilters({ year: null }),
+    });
+  }
+  if (trimmedQuery) {
+    activeChips.push({
+      id: "query",
+      label: `"${trimmedQuery}"`,
+      onRemove: () => updateFilters({ query: "" }),
+    });
+  }
+
   const stepSize =
     hasActiveFilters || viewMode === "row" ? FILTERED_PAGE_SIZE : EDITORIAL_STEP;
 
@@ -267,7 +500,7 @@ export default function NewsHub({ initialPage = 1 }) {
     <main className={styles.main}>
       {/* -------------------------------------------- BAND 1: MASTHEAD */}
       <header className={styles.masthead}>
-        <MastheadBackdrop />
+        <DispatchMeridianCanvas />
         <BoundaryBox className={styles.mastheadInner}>
           <div className={styles.mastheadGrid}>
             <div className={styles.mastheadCopy}>
@@ -305,6 +538,50 @@ export default function NewsHub({ initialPage = 1 }) {
                   digests, and ecosystem adoption from across the network.
                 </Translate>
               </p>
+
+              <div className={styles.editionPulse}>
+                <span className={styles.editionStat}>
+                  <Translate
+                    id="news.masthead.countArticles"
+                    values={{ count: filterOptions.totalCount }}
+                  >
+                    {"{count} Articles"}
+                  </Translate>
+                </span>
+                {editionStats.latestYear && editionStats.latestYearCount > 0 && (
+                  <>
+                    <span className={styles.editionSep} aria-hidden="true">
+                      ·
+                    </span>
+                    <span className={styles.editionStat}>
+                      <Translate
+                        id="news.masthead.countThisYear"
+                        values={{
+                          count: editionStats.latestYearCount,
+                          year: editionStats.latestYear,
+                        }}
+                      >
+                        {"{count} in {year}"}
+                      </Translate>
+                    </span>
+                  </>
+                )}
+                {editionStats.firstYear && (
+                  <>
+                    <span className={styles.editionSep} aria-hidden="true">
+                      ·
+                    </span>
+                    <span className={styles.editionStat}>
+                      <Translate
+                        id="news.masthead.sinceYear"
+                        values={{ year: editionStats.firstYear }}
+                      >
+                        {"Since {year}"}
+                      </Translate>
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
 
             <div className={styles.mastheadActions}>
@@ -358,6 +635,7 @@ export default function NewsHub({ initialPage = 1 }) {
                   <button
                     key={slug}
                     type="button"
+                    data-category={slug}
                     className={clsx(
                       styles.navTab,
                       active && styles.navTabActive
@@ -367,7 +645,12 @@ export default function NewsHub({ initialPage = 1 }) {
                       updateFilters({ category: active ? null : slug })
                     }
                   >
-                    {categoryLabels[slug]}
+                    <span
+                      className={styles.tabDot}
+                      data-category={slug}
+                      aria-hidden="true"
+                    />
+                    <span>{categoryLabels[slug]}</span>
                   </button>
                 );
               })}
@@ -617,6 +900,54 @@ export default function NewsHub({ initialPage = 1 }) {
               </div>
             </div>
           )}
+
+          {hasActiveFilters && activeChips.length > 0 && (
+            <div className={styles.activeFiltersRow}>
+              <div className={styles.activeChips}>
+                {activeChips.map((chip) => (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    className={styles.activeChip}
+                    onClick={chip.onRemove}
+                  >
+                    <span>{chip.label}</span>
+                    <svg
+                      viewBox="0 0 14 14"
+                      width="11"
+                      height="11"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className={styles.resetInline}
+                  onClick={resetFilters}
+                >
+                  <Translate id="news.filter.reset">Clear filters</Translate>
+                </button>
+              </div>
+
+              {trimmedQuery && (
+                <Link
+                  className={styles.globalSearchHandoff}
+                  to={`/search?q=${encodeURIComponent(trimmedQuery)}`}
+                >
+                  <Translate id="news.nav.searchSiteShort">
+                    Search all of cardano.org
+                  </Translate>
+                </Link>
+              )}
+            </div>
+          )}
         </BoundaryBox>
       </div>
 
@@ -691,7 +1022,11 @@ export default function NewsHub({ initialPage = 1 }) {
               {recurringSeries.map((series, idx) => {
                 const author = series.latest.authors?.[0];
                 return (
-                  <div key={series.id} className={styles.briefingCol}>
+                  <div
+                    key={series.id}
+                    data-series={series.id}
+                    className={styles.briefingCol}
+                  >
                     <div className={styles.briefingTop}>
                       <span className={styles.briefingNum}>
                         {String(idx + 1).padStart(2, "0")}
@@ -943,7 +1278,7 @@ export default function NewsHub({ initialPage = 1 }) {
                 {canLoadMore && (
                   <button
                     type="button"
-                    className="button button--primary button--lg"
+                    className={clsx("button button--primary button--lg", styles.loadMoreBtn)}
                     onClick={() =>
                       setVisibleCount((prev) => prev + stepSize)
                     }
@@ -1021,7 +1356,7 @@ export default function NewsHub({ initialPage = 1 }) {
           className={styles.videoBand}
           aria-labelledby="watch-listen-heading"
         >
-          <BoundaryBox>
+          <BoundaryBox className={styles.videoBandInner}>
             <div className={styles.sectionHeader}>
               <div>
                 <p className={styles.videoEyebrow}>
@@ -1070,30 +1405,32 @@ export default function NewsHub({ initialPage = 1 }) {
       )}
 
       {/* -------------------------------------------- BAND 7: CLOSING CTA */}
-      <PageCTA
-        variant="primary"
-        title={translate({
-          id: "news.cta.title",
-          message: "Have a Cardano story to share?",
-        })}
-        description={translate({
-          id: "news.cta.description",
-          message:
-            "Cardano News is curated by the community. Submit a concise article summary or subscribe to the bi-weekly Community Digest.",
-        })}
-        href="/docs/get-involved/create-a-news-article"
-        buttonText={translate({
-          id: "news.cta.submitButton",
-          message: "Submit a News Article",
-        })}
-        secondaryButton={{
-          href: "/newsletter",
-          label: translate({
-            id: "news.cta.newsletterButton",
-            message: "Subscribe to Newsletter",
-          }),
-        }}
-      />
+      <div className={styles.ctaWrap}>
+        <PageCTA
+          variant="primary"
+          title={translate({
+            id: "news.cta.title",
+            message: "Have a Cardano story to share?",
+          })}
+          description={translate({
+            id: "news.cta.description",
+            message:
+              "Cardano News is curated by the community. Submit a concise article summary or subscribe to the bi-weekly Community Digest.",
+          })}
+          href="/docs/get-involved/create-a-news-article"
+          buttonText={translate({
+            id: "news.cta.submitButton",
+            message: "Submit a News Article",
+          })}
+          secondaryButton={{
+            href: "/newsletter",
+            label: translate({
+              id: "news.cta.newsletterButton",
+              message: "Subscribe to Newsletter",
+            }),
+          }}
+        />
+      </div>
     </main>
   );
 }
