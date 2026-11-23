@@ -1,4 +1,4 @@
-import React, { useId } from "react";
+import React from "react";
 import clsx from "clsx";
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
 import Layout from "@theme/Layout";
@@ -36,8 +36,6 @@ export default function BlogLayout(props) {
     : null;
   const hasToc = Boolean(toc);
 
-  const rawId = useId().replace(/:/g, "");
-  const arcGradId = `article-meridian-arc-${rawId}`;
   const formatOrSource = currentPost?.youtubeId
     ? translate({ id: "news.card.video", message: "Video" })
     : currentPost?.externalHost || null;
@@ -63,23 +61,10 @@ export default function BlogLayout(props) {
             preserveAspectRatio="xMidYMid slice"
             aria-hidden="true"
           >
-            <defs>
-              <linearGradient
-                id={arcGradId}
-                x1="0%"
-                y1="0%"
-                x2="100%"
-                y2="100%"
-              >
-                <stop offset="0%" stopColor="#C7C2E6" stopOpacity="0" />
-                <stop offset="50%" stopColor="#FFFAF3" stopOpacity="0.22" />
-                <stop offset="100%" stopColor="#2FB7A8" stopOpacity="0.06" />
-              </linearGradient>
-            </defs>
-            <g fill="none" stroke={`url(#${arcGradId})`} strokeWidth="1">
-              <circle cx="1180" cy="40" r="135" />
-              <circle cx="1180" cy="40" r="245" />
-              <circle cx="1180" cy="40" r="365" />
+            <g fill="none" stroke="currentColor" className={styles.heroRings}>
+              <circle cx="1180" cy="40" r="135" strokeOpacity="0.22" strokeWidth="1.1" />
+              <circle cx="1180" cy="40" r="245" strokeOpacity="0.16" strokeWidth="1" />
+              <circle cx="1180" cy="40" r="365" strokeOpacity="0.1" strokeWidth="0.9" />
             </g>
             <g fill="currentColor" className={styles.heroPulses}>
               <circle cx="1045" cy="40" r="3" />

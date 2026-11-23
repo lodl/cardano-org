@@ -1,4 +1,4 @@
-import React, { useId, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import Translate, { translate } from "@docusaurus/Translate";
@@ -75,9 +75,6 @@ export default function BlogTagsPostsPage(props) {
   const canLoadMore = visibleCount < restPosts.length;
   const totalShown = (leadPost ? 1 : 0) + visibleRest.length;
 
-  const rawId = useId().replace(/:/g, "");
-  const arcGradId = `tag-meridian-arc-${rawId}`;
-
   return (
     <HtmlClassNameProvider
       className={clsx(
@@ -101,24 +98,11 @@ export default function BlogTagsPostsPage(props) {
               preserveAspectRatio="xMidYMid slice"
               aria-hidden="true"
             >
-              <defs>
-                <linearGradient
-                  id={arcGradId}
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor="#C7C2E6" stopOpacity="0" />
-                  <stop offset="50%" stopColor="#FFFAF3" stopOpacity="0.24" />
-                  <stop offset="100%" stopColor="#2FB7A8" stopOpacity="0.06" />
-                </linearGradient>
-              </defs>
-              <g fill="none" stroke={`url(#${arcGradId})`} strokeWidth="1">
-                <circle cx="1160" cy="70" r="145" />
-                <circle cx="1160" cy="70" r="265" />
-                <circle cx="1160" cy="70" r="395" />
-                <circle cx="1160" cy="70" r="535" />
+              <g fill="none" stroke="currentColor" className={styles.mastheadRings}>
+                <circle cx="1160" cy="70" r="145" strokeOpacity="0.22" strokeWidth="1.1" />
+                <circle cx="1160" cy="70" r="265" strokeOpacity="0.16" strokeWidth="1" />
+                <circle cx="1160" cy="70" r="395" strokeOpacity="0.12" strokeWidth="0.9" />
+                <circle cx="1160" cy="70" r="535" strokeOpacity="0.08" strokeWidth="0.85" />
               </g>
               <g fill="currentColor" className={styles.mastheadPulses}>
                 <circle cx="1015" cy="70" r="3.2" />

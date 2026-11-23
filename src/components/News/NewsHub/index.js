@@ -84,21 +84,48 @@ function scrollToStories() {
 }
 
 const MERIDIAN_PULSES = [
-  { ring: 0, speed: 0.00018, phase: 0.4, radius: 2.8, color: "#FFB122", glow: true },
-  { ring: 0, speed: 0.00018, phase: 3.55, radius: 2.2, color: "#2FB7A8", glow: false },
-  { ring: 1, speed: -0.00013, phase: 1.1, radius: 2.5, color: "#2FB7A8", glow: true },
-  { ring: 1, speed: -0.00013, phase: 4.3, radius: 2.0, color: "#C7C2E6", glow: false },
-  { ring: 2, speed: 0.0001, phase: 2.2, radius: 3.0, color: "#FFB122", glow: true },
-  { ring: 2, speed: 0.0001, phase: 5.1, radius: 2.1, color: "#968CC3", glow: false },
-  { ring: 3, speed: -0.00008, phase: 0.8, radius: 2.4, color: "#968CC3", glow: false },
-  { ring: 3, speed: -0.00008, phase: 3.1, radius: 2.6, color: "#2FB7A8", glow: true },
-  { ring: 1, speed: 0.00015, phase: 2.75, radius: 1.9, color: "#FFFAF3", glow: false },
-  { ring: 2, speed: -0.00011, phase: 3.85, radius: 2.2, color: "#FFB122", glow: false },
+  { ring: 0, speed: 0.00018, phase: 0.4, radius: 2.8, token: "accent", glow: true },
+  { ring: 0, speed: 0.00018, phase: 3.55, radius: 2.2, token: "highlight", glow: false },
+  { ring: 1, speed: -0.00013, phase: 1.1, radius: 2.5, token: "highlight", glow: true },
+  { ring: 1, speed: -0.00013, phase: 4.3, radius: 2.0, token: "muted", glow: false },
+  { ring: 2, speed: 0.0001, phase: 2.2, radius: 3.0, token: "accent", glow: true },
+  { ring: 2, speed: 0.0001, phase: 5.1, radius: 2.1, token: "glow", glow: false },
+  { ring: 3, speed: -0.00008, phase: 0.8, radius: 2.4, token: "glow", glow: false },
+  { ring: 3, speed: -0.00008, phase: 3.1, radius: 2.6, token: "highlight", glow: true },
+  { ring: 1, speed: 0.00015, phase: 2.75, radius: 1.9, token: "ink", glow: false },
+  { ring: 2, speed: -0.00011, phase: 3.85, radius: 2.2, token: "accent", glow: false },
 ];
+
+function parseCssColor(value) {
+  const raw = (value || "").trim();
+  if (raw.startsWith("#")) {
+    const hex = raw.slice(1);
+    if (hex.length === 3) {
+      return [
+        parseInt(hex[0] + hex[0], 16),
+        parseInt(hex[1] + hex[1], 16),
+        parseInt(hex[2] + hex[2], 16),
+      ];
+    }
+    if (hex.length >= 6) {
+      return [
+        parseInt(hex.slice(0, 2), 16),
+        parseInt(hex.slice(2, 4), 16),
+        parseInt(hex.slice(4, 6), 16),
+      ];
+    }
+  }
+  const m = raw.match(/(\d+)[\s,]+(\d+)[\s,]+(\d+)/);
+  return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : [150, 140, 195];
+}
+
+function toRgba(rgb, alpha) {
+  return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+}
 
 /**
  * Ambient Cardano Dispatch Meridian orbital visualization for the masthead.
- * Pauses off-screen and collapses to a static constellation under reduced motion.
+ * Reads stage color tokens at runtime and pauses off-screen or under reduced motion.
  */
 function DispatchMeridianCanvas() {
   const canvasRef = useRef(null);
@@ -118,6 +145,20 @@ function DispatchMeridianCanvas() {
     let height = 0;
     let rafId = null;
     let inView = true;
+    let palette = null;
+
+    const readTokens = () => {
+      const rootStyle = window.getComputedStyle(document.documentElement);
+      const read = (name) => parseCssColor(rootStyle.getPropertyValue(name));
+      palette = {
+        accent: read("--site-stage-accent"),
+        highlight: read("--site-stage-highlight"),
+        glow: read("--site-stage-glow"),
+        muted: read("--site-stage-ink-muted"),
+        ink: read("--site-stage-ink"),
+        bgStart: read("--site-stage-bg-start"),
+      };
+    };
 
     const measure = () => {
       const rect = canvas.getBoundingClientRect();
@@ -130,6 +171,7 @@ function DispatchMeridianCanvas() {
     };
 
     const drawFrame = (timestamp) => {
+      if (!palette) readTokens();
       ctx.clearRect(0, 0, width, height);
 
       const cx = width * 0.8;
@@ -138,9 +180,9 @@ function DispatchMeridianCanvas() {
       const radii = [base * 0.48, base * 0.82, base * 1.18, base * 1.56];
 
       const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, radii[2]);
-      halo.addColorStop(0, "rgba(150, 140, 195, 0.22)");
-      halo.addColorStop(0.5, "rgba(47, 183, 168, 0.08)");
-      halo.addColorStop(1, "rgba(0, 6, 41, 0)");
+      halo.addColorStop(0, toRgba(palette.glow, 0.22));
+      halo.addColorStop(0.5, toRgba(palette.highlight, 0.08));
+      halo.addColorStop(1, toRgba(palette.bgStart, 0));
       ctx.fillStyle = halo;
       ctx.fillRect(0, 0, width, height);
 
@@ -149,17 +191,17 @@ function DispatchMeridianCanvas() {
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
         ctx.strokeStyle =
           idx % 2 === 0
-            ? "rgba(199, 194, 230, 0.16)"
-            : "rgba(47, 183, 168, 0.12)";
+            ? toRgba(palette.muted, 0.16)
+            : toRgba(palette.highlight, 0.12);
         ctx.lineWidth = idx === 1 ? 1.1 : 0.85;
         ctx.stroke();
       });
 
       // Sweeping signal arcs
       const sweepColors = [
-        "rgba(255, 177, 34, 0.28)",
-        "rgba(47, 183, 168, 0.26)",
-        "rgba(150, 140, 195, 0.24)",
+        toRgba(palette.accent, 0.28),
+        toRgba(palette.highlight, 0.26),
+        toRgba(palette.glow, 0.24),
       ];
       [1, 2, 3].forEach((ringIdx, i) => {
         const angle = timestamp * (0.00009 * (i % 2 === 0 ? 1 : -1)) + i * 2.1;
@@ -176,20 +218,21 @@ function DispatchMeridianCanvas() {
         const theta = pulse.phase + timestamp * pulse.speed;
         const px = cx + Math.cos(theta) * r;
         const py = cy + Math.sin(theta) * r;
+        const pulseRgb = palette[pulse.token] || palette.muted;
 
         if (pulse.glow) {
           ctx.beginPath();
           ctx.arc(px, py, pulse.radius * 3.1, 0, Math.PI * 2);
-          ctx.fillStyle =
-            pulse.color === "#FFB122"
-              ? "rgba(255, 177, 34, 0.22)"
-              : "rgba(47, 183, 168, 0.2)";
+          ctx.fillStyle = toRgba(
+            pulseRgb,
+            pulse.token === "accent" ? 0.22 : 0.2
+          );
           ctx.fill();
         }
 
         ctx.beginPath();
         ctx.arc(px, py, pulse.radius, 0, Math.PI * 2);
-        ctx.fillStyle = pulse.color;
+        ctx.fillStyle = toRgba(pulseRgb, 1);
         ctx.fill();
       });
     };
@@ -229,8 +272,23 @@ function DispatchMeridianCanvas() {
       }
     };
 
+    readTokens();
     measure();
     syncPlayback();
+
+    let themeObserver = null;
+    if (typeof MutationObserver !== "undefined") {
+      themeObserver = new MutationObserver(() => {
+        readTokens();
+        if (motionQuery && motionQuery.matches) {
+          drawFrame(1400);
+        }
+      });
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+    }
 
     let resizeObserver = null;
     if (typeof ResizeObserver !== "undefined") {
@@ -265,6 +323,7 @@ function DispatchMeridianCanvas() {
 
     return () => {
       stopLoop();
+      if (themeObserver) themeObserver.disconnect();
       if (resizeObserver) resizeObserver.disconnect();
       if (intersectionObserver) intersectionObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);

@@ -116,6 +116,31 @@
   --site-vote-yes: #075e35;
   --site-vote-no: #d1440c;
   --site-vote-abstain: #6b7280;
+
+  /* Dark editorial stages (masthead, cover feature cards, cinema bands).
+   * Ink stays light on dark surfaces in both themes, matching --site-tier-ink. */
+  --site-stage-bg-start: #000629;
+  --site-stage-bg-mid: #06187d;
+  --site-stage-bg-end: #0033ad;
+  --site-stage-card-start: #000629;
+  --site-stage-card-end: #002685;
+  --site-stage-surface: #08123d;
+  --site-stage-ink: #fffaf3;
+  --site-stage-ink-muted: #c7c2e6;
+  --site-stage-accent: #ffb122;
+  --site-stage-accent-hover: #ffc552;
+  --site-stage-accent-ink: #000629;
+  --site-stage-highlight: #2fb7a8;
+  --site-stage-glow: #968cc3;
+
+  /* Newsroom category accents (4.5:1+ contrast on light surfaces; lifted in dark mode). */
+  --site-news-cat-development: #0033ad;
+  --site-news-cat-research: #5b4da6;
+  --site-news-cat-governance: #0a6e63;
+  --site-news-cat-community: #945200;
+  --site-news-cat-ecosystem: #06187d;
+  --site-news-cat-education: #4f4294;
+  --site-news-cat-events: #8c4b00;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -162,6 +187,19 @@
   --site-vote-yes: #8ff0b8;
   --site-vote-no: #e5683d;
   --site-vote-abstain: #9aa1ad;
+
+  /* Dark editorial stage card lift for separation on dark backgrounds */
+  --site-stage-card-start: #071347;
+  --site-stage-card-end: #0c2694;
+
+  /* Newsroom category accents, lifted for dark backgrounds */
+  --site-news-cat-development: #8fb1ff;
+  --site-news-cat-research: #c7c2e6;
+  --site-news-cat-governance: #5eead4;
+  --site-news-cat-community: #ffb122;
+  --site-news-cat-ecosystem: #9ebeff;
+  --site-news-cat-education: #d5d0f2;
+  --site-news-cat-events: #ffc75c;
 }
 
 .header-discord-link:before {

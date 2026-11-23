@@ -101,6 +101,40 @@ Vote outcomes on the governance explainer. Yes and No differ in lightness as wel
 | `--site-vote-no` | `#d1440c` | `#e5683d` | No votes and failing checks |
 | `--site-vote-abstain` | `#6b7280` | `#9aa1ad` | Abstain |
 
+### Dark editorial stage
+
+Dark hero bands, cover feature cards, and cinema panels share one stage palette across themes. Like `--site-tier-ink`, text tokens stay fixed on dark stage backgrounds instead of flipping in light mode.
+
+| Token | Light | Dark | Use |
+|-------|-------|------|-----|
+| `--site-stage-bg-start` | `#000629` | `#000629` | Stage gradient start |
+| `--site-stage-bg-mid` | `#06187d` | `#06187d` | Stage gradient midpoint |
+| `--site-stage-bg-end` | `#0033ad` | `#0033ad` | Stage gradient end |
+| `--site-stage-card-start` | `#000629` | `#071347` | Featured stage card start (lifted in dark mode) |
+| `--site-stage-card-end` | `#002685` | `#0c2694` | Featured stage card end (lifted in dark mode) |
+| `--site-stage-surface` | `#08123d` | `#08123d` | Recessed stage card fill (video theater) |
+| `--site-stage-ink` | `#fffaf3` | `#fffaf3` | Primary headline and body ink on stage backgrounds |
+| `--site-stage-ink-muted` | `#c7c2e6` | `#c7c2e6` | Secondary deck, dateline, and metadata ink on stages |
+| `--site-stage-accent` | `#ffb122` | `#ffb122` | Primary stage CTA, featured kicker pill, and key accent |
+| `--site-stage-accent-hover` | `#ffc552` | `#ffc552` | Stage accent hover fill |
+| `--site-stage-accent-ink` | `#000629` | `#000629` | Text color on top of `--site-stage-accent` |
+| `--site-stage-highlight` | `#2fb7a8` | `#2fb7a8` | Secondary accent for spectrum seams and telemetry |
+| `--site-stage-glow` | `#968cc3` | `#968cc3` | Ambient radial mist and tertiary accent |
+
+### Newsroom categories
+
+One semantic accent per editorial category, meeting 4.5:1 contrast on light card surfaces and lifted for dark backgrounds. Components derive pill fills and radial blooms with `color-mix(in srgb, ...)`.
+
+| Token | Light | Dark | Use |
+|-------|-------|------|-----|
+| `--site-news-cat-development` | `#0033ad` | `#8fb1ff` | Development articles |
+| `--site-news-cat-research` | `#5b4da6` | `#c7c2e6` | Research articles |
+| `--site-news-cat-governance` | `#0a6e63` | `#5eead4` | Governance articles |
+| `--site-news-cat-community` | `#945200` | `#ffb122` | Community articles |
+| `--site-news-cat-ecosystem` | `#06187d` | `#9ebeff` | Ecosystem articles |
+| `--site-news-cat-education` | `#4f4294` | `#d5d0f2` | Education articles |
+| `--site-news-cat-events` | `#8c4b00` | `#ffc75c` | Events articles |
+
 ## Spacing
 
 An 8px-based scale. Use it for padding, margins, and gaps.
