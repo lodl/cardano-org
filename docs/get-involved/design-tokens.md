@@ -135,6 +135,16 @@ One semantic accent per editorial category, meeting 4.5:1 contrast on light card
 | `--site-news-cat-education` | `#4f4294` | `#d5d0f2` | Education articles |
 | `--site-news-cat-events` | `#8c4b00` | `#ffc75c` | Events articles |
 
+### Editorial surfaces
+
+Warm paper canvas and lifted card surfaces for multi-band editorial pages such as Cardano News.
+
+| Token | Light | Dark | Use |
+|-------|-------|------|-----|
+| `--site-canvas-editorial` | `#fffaf3` | `#000629` | Primary page canvas and frosted sticky ribbons |
+| `--site-surface-elevated` | `#ffffff` | `#08113b` | Elevated content cards, controls, and reading panels |
+| `--site-surface-subtle` | `#f2eff9` | `#050d34` | Alternating briefing bands, CTA backdrops, and subtle hover washes |
+
 ## Spacing
 
 An 8px-based scale. Use it for padding, margins, and gaps.

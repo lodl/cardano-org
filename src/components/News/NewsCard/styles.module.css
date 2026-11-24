@@ -271,7 +271,7 @@
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
-  background: var(--ifm-color-emphasis-100);
+  background: var(--site-surface-subtle);
   border: 1px solid var(--ifm-color-emphasis-200);
 }
 
@@ -309,10 +309,20 @@
 
 .cardGrid,
 .cardSpotlight {
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--site-radius-lg);
   overflow: hidden;
+}
+
+.cardGrid {
+  container-type: inline-size;
+}
+
+@container (max-width: 300px) {
+  .ctaText {
+    display: none;
+  }
 }
 
 .cardGrid::before,
@@ -502,7 +512,7 @@
 }
 
 .cardRow:hover {
-  background: var(--site-tint-weak);
+  background: var(--site-surface-subtle);
 }
 
 .rowDateCol {

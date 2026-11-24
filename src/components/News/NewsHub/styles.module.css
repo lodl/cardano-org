@@ -1,5 +1,5 @@
 .main {
-  background: var(--ifm-background-surface-color);
+  background: var(--site-canvas-editorial);
   color: var(--ifm-font-color-base);
   overflow-x: clip;
 }
@@ -236,7 +236,7 @@
   z-index: 20;
   background: color-mix(
     in srgb,
-    var(--ifm-background-surface-color) 96%,
+    var(--site-canvas-editorial) 95%,
     transparent
   );
   backdrop-filter: blur(14px);
@@ -362,7 +362,7 @@
   padding: 0.46rem 2rem 0.46rem 2.15rem;
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--site-radius-pill);
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   color: var(--ifm-font-color-base);
   font: inherit;
   font-size: 0.85rem;
@@ -416,7 +416,7 @@
   padding: 0.46rem 0.9rem;
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--site-radius-pill);
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   color: var(--ifm-font-color-base);
   font: inherit;
   font-size: 0.84rem;
@@ -460,7 +460,7 @@
   padding: 0.36rem 0.82rem;
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--site-radius-pill);
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   color: var(--ifm-color-emphasis-600);
   font: inherit;
   font-size: 0.8125rem;
@@ -479,11 +479,18 @@
 .drawerPill.drawerPillActive {
   background: var(--ifm-color-primary);
   border-color: var(--ifm-color-primary);
-  color: var(--ifm-background-surface-color);
+  color: var(--site-surface-elevated);
 }
 
 .drawerPill.drawerPillActive:hover {
-  color: var(--ifm-background-surface-color);
+  color: var(--site-surface-elevated);
+}
+
+:global(html[data-theme="dark"]) .drawerPill.drawerPillActive,
+:global(html[data-theme="dark"]) .drawerPill.drawerPillActive:hover {
+  background: var(--ifm-color-primary-lighter);
+  border-color: var(--ifm-color-primary-lighter);
+  color: var(--site-stage-accent-ink);
 }
 
 .drawerSelects {
@@ -497,7 +504,7 @@
   padding: 0.4rem 0.75rem;
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--site-radius-sm);
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   color: var(--ifm-font-color-base);
   font: inherit;
   font-size: 0.8125rem;
@@ -557,7 +564,7 @@
 
 .activeChip:hover {
   border-color: var(--ifm-color-primary);
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
 }
 
 .globalSearchHandoff {
@@ -639,7 +646,7 @@
   padding: 0.5rem 1.05rem;
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: var(--site-radius-pill);
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   color: var(--ifm-color-primary);
   font: inherit;
   font-size: 0.85rem;
@@ -653,7 +660,11 @@
 .sectionActionBtn:hover {
   background: var(--ifm-color-primary);
   border-color: var(--ifm-color-primary);
-  color: var(--ifm-background-surface-color);
+  color: var(--site-surface-elevated);
+}
+
+:global(html[data-theme="dark"]) .sectionActionBtn:hover {
+  color: var(--site-stage-accent-ink);
 }
 
 /* ------------------------------------------------------------------ */
@@ -661,7 +672,7 @@
 /* ------------------------------------------------------------------ */
 
 .briefingsBand {
-  background: var(--ifm-color-emphasis-100);
+  background: var(--site-surface-subtle);
   border-top: 1px solid var(--ifm-color-emphasis-200);
   border-bottom: 1px solid var(--ifm-color-emphasis-200);
   padding: var(--site-space-2xl) 0;
@@ -671,7 +682,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--site-radius-lg);
   padding: var(--site-space-md);
@@ -832,7 +843,7 @@
   display: inline-flex;
   padding: 3px;
   border-radius: var(--site-radius-pill);
-  background: var(--ifm-color-emphasis-100);
+  background: var(--site-surface-subtle);
   border: 1px solid var(--ifm-color-emphasis-200);
 }
 
@@ -852,16 +863,21 @@
 }
 
 .segBtn.segBtnActive {
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   color: var(--ifm-font-color-base);
   box-shadow: var(--site-shadow-xs);
+}
+
+:global(html[data-theme="dark"]) .segBtn.segBtnActive {
+  background: var(--ifm-color-primary-lighter);
+  color: var(--site-stage-accent-ink);
 }
 
 .viewToggle {
   display: inline-flex;
   padding: 3px;
   border-radius: var(--site-radius-md);
-  background: var(--ifm-color-emphasis-100);
+  background: var(--site-surface-subtle);
   border: 1px solid var(--ifm-color-emphasis-200);
 }
 
@@ -879,7 +895,7 @@
 }
 
 .viewBtn.viewBtnActive {
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   color: var(--ifm-color-primary);
   box-shadow: var(--site-shadow-xs);
 }
@@ -920,7 +936,7 @@
   padding: var(--site-space-2xl) var(--site-space-md);
   border: 1px dashed var(--ifm-color-emphasis-300);
   border-radius: var(--site-radius-lg);
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
 }
 
 .emptyTitle {
@@ -1018,6 +1034,10 @@
 /* ------------------------------------------------------------------ */
 /* Band 7: Seamless PageCTA integration                                */
 /* ------------------------------------------------------------------ */
+
+.ctaWrap {
+  --ifm-color-emphasis-100: var(--site-surface-subtle);
+}
 
 .ctaWrap > section {
   margin-top: 0;

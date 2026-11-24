@@ -37,7 +37,7 @@
   padding: 0.45rem 0.95rem;
   border-radius: var(--site-radius-pill);
   border: 1px solid var(--ifm-color-emphasis-300);
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--ifm-color-primary);
@@ -50,8 +50,12 @@
 .allLink:hover {
   background: var(--ifm-color-primary);
   border-color: var(--ifm-color-primary);
-  color: var(--ifm-background-surface-color);
+  color: var(--site-surface-elevated);
   text-decoration: none;
+}
+
+:global(html[data-theme="dark"]) .allLink:hover {
+  color: var(--site-stage-accent-ink);
 }
 
 .allIcon {

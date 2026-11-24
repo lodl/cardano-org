@@ -242,7 +242,7 @@ export default function NewsCard({
             )}
           </div>
           <span className={styles.cta}>
-            <span>
+            <span className={styles.ctaText}>
               {isLead
                 ? ctaText
                 : post.externalHost

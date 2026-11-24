@@ -141,6 +141,11 @@
   --site-news-cat-ecosystem: #06187d;
   --site-news-cat-education: #4f4294;
   --site-news-cat-events: #8c4b00;
+
+  /* Editorial surfaces (warm paper canvas and elevated card contrast) */
+  --site-canvas-editorial: #fffaf3;
+  --site-surface-elevated: #ffffff;
+  --site-surface-subtle: #f2eff9;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -200,6 +205,11 @@
   --site-news-cat-ecosystem: #9ebeff;
   --site-news-cat-education: #d5d0f2;
   --site-news-cat-events: #ffc75c;
+
+  /* Editorial surfaces in dark mode (deep obsidian canvas and lifted navy cards) */
+  --site-canvas-editorial: #000629;
+  --site-surface-elevated: #08113b;
+  --site-surface-subtle: #050d34;
 }
 
 .header-discord-link:before {

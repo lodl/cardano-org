@@ -1,0 +1,445 @@
+.main {
+  background: var(--site-canvas-editorial);
+  color: var(--ifm-font-color-base);
+  overflow-x: clip;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark Editorial Stage Masthead                                       */
+/* ------------------------------------------------------------------ */
+
+.masthead {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    var(--site-stage-bg-start) 0%,
+    var(--site-stage-bg-mid) 56%,
+    var(--site-stage-bg-end) 100%
+  );
+  color: var(--site-stage-ink);
+  overflow: hidden;
+  isolation: isolate;
+  padding: clamp(2rem, 4vw, 3.25rem) 0;
+}
+
+.masthead::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 58% 72% at 84% 18%,
+    color-mix(in srgb, var(--site-stage-glow) 24%, transparent) 0%,
+    color-mix(in srgb, var(--site-stage-highlight) 8%, transparent) 48%,
+    transparent 74%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.masthead::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    var(--site-stage-bg-end) 0%,
+    var(--site-stage-highlight) 35%,
+    var(--site-stage-accent) 68%,
+    var(--site-stage-glow) 100%
+  );
+  z-index: 3;
+}
+
+.mastheadSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.mastheadRings {
+  color: var(--site-stage-ink-muted);
+}
+
+.mastheadPulses {
+  color: var(--site-stage-accent);
+  opacity: 0.85;
+}
+
+.mastheadInner {
+  position: relative;
+  z-index: 2;
+}
+
+.breadcrumb {
+  margin-bottom: var(--site-space-sm);
+}
+
+.breadcrumbLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--site-stage-ink-muted);
+  text-decoration: none;
+  transition: color var(--site-duration-fast) var(--site-ease);
+}
+
+.breadcrumbLink:hover {
+  color: var(--site-stage-accent);
+  text-decoration: none;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: clamp(2.1rem, 4.2vw, 3.15rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  color: var(--site-stage-ink);
+}
+
+.heroDesc {
+  margin: var(--site-space-xs) 0 0;
+  max-width: 62ch;
+  font-size: 1.04rem;
+  line-height: 1.62;
+  color: var(--site-stage-ink-muted);
+}
+
+.statsPill {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: var(--site-space-md);
+  padding: 0.36rem 0.9rem;
+  border-radius: var(--site-radius-pill);
+  background: color-mix(in srgb, var(--site-stage-ink) 8%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--site-stage-ink-muted) 24%, transparent);
+  backdrop-filter: blur(8px);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--site-stage-ink);
+}
+
+.statsSep {
+  color: var(--site-stage-highlight);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ */
+/* Visual Topics Grid (stretched-link cards with independent links)    */
+/* ------------------------------------------------------------------ */
+
+.topicsSection {
+  padding: var(--site-space-2xl) 0;
+}
+
+.topicCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--site-surface-elevated);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--site-radius-xl);
+  overflow: hidden;
+  --cat-color: var(--ifm-color-primary);
+  transition: transform var(--site-duration-base) var(--site-ease),
+    box-shadow var(--site-duration-base) var(--site-ease),
+    border-color var(--site-duration-base) var(--site-ease);
+}
+
+.topicCard[data-category="development"] {
+  --cat-color: var(--site-news-cat-development);
+}
+.topicCard[data-category="research"] {
+  --cat-color: var(--site-news-cat-research);
+}
+.topicCard[data-category="governance"] {
+  --cat-color: var(--site-news-cat-governance);
+}
+.topicCard[data-category="community"] {
+  --cat-color: var(--site-news-cat-community);
+}
+.topicCard[data-category="ecosystem"] {
+  --cat-color: var(--site-news-cat-ecosystem);
+}
+.topicCard[data-category="education"] {
+  --cat-color: var(--site-news-cat-education);
+}
+.topicCard[data-category="events"] {
+  --cat-color: var(--site-news-cat-events);
+}
+
+.topicCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--cat-color);
+  z-index: 3;
+}
+
+.topicCard:has(.cardLink:hover) {
+  transform: translateY(var(--site-lift));
+  box-shadow: var(--site-shadow-lg);
+  border-color: var(--ifm-color-emphasis-300);
+}
+
+.topicCard:has(.cardLink:focus-visible) {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+/* Keep independent latest-story link clickable above the stretched card link */
+.topicCard a:not(.cardLink) {
+  position: relative;
+  z-index: 1;
+}
+
+.topicMedia {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--site-stage-bg-start);
+}
+
+.topicImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--site-duration-slow) var(--site-ease);
+}
+
+.topicCard:has(.cardLink:hover) .topicImg {
+  transform: scale(1.035);
+}
+
+.mediaOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--site-space-xs);
+  padding: var(--site-space-sm);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--site-stage-bg-start) 48%, transparent) 0%,
+    transparent 50%
+  );
+  z-index: 1;
+}
+
+.catPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0.22rem 0.62rem;
+  border-radius: var(--site-radius-pill);
+  background: color-mix(in srgb, var(--site-stage-bg-start) 72%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--site-stage-ink-muted) 32%, transparent);
+  backdrop-filter: blur(8px);
+  color: var(--site-stage-ink);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.catDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: color-mix(
+    in srgb,
+    var(--cat-color) 55%,
+    var(--site-stage-ink) 45%
+  );
+}
+
+.mediaCount {
+  padding: 0.22rem 0.62rem;
+  border-radius: var(--site-radius-pill);
+  background: color-mix(in srgb, var(--site-stage-bg-start) 72%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--site-stage-accent) 40%, transparent);
+  backdrop-filter: blur(8px);
+  color: var(--site-stage-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.topicBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--site-space-md);
+}
+
+.topicTitle {
+  margin: 0 0 var(--site-space-2xs);
+  font-size: 1.32rem;
+  line-height: 1.25;
+}
+
+.cardLink {
+  color: var(--ifm-heading-color);
+  text-decoration: none;
+}
+
+.cardLink:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.cardLink:focus-visible {
+  outline: none;
+}
+
+.cardLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.topicDesc {
+  margin: 0 0 var(--site-space-md);
+  font-size: 0.94rem;
+  line-height: 1.58;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.latestBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  margin-top: auto;
+  padding: 0.72rem 0.88rem;
+  border-radius: var(--site-radius-md);
+  background: var(--site-surface-subtle);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  text-decoration: none;
+  transition: border-color var(--site-duration-fast) var(--site-ease),
+    background-color var(--site-duration-fast) var(--site-ease);
+}
+
+.latestBox:hover {
+  border-color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.latestEyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--site-space-xs);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cat-color);
+}
+
+.latestTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ifm-font-color-base);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.topicFooter {
+  margin-top: var(--site-space-sm);
+  padding-top: var(--site-space-xs);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.exploreCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ifm-color-primary);
+}
+
+.exploreIcon {
+  flex-shrink: 0;
+  transition: transform var(--site-duration-fast) var(--site-ease);
+}
+
+.topicCard:has(.cardLink:hover) .exploreIcon {
+  transform: translateX(var(--site-nudge));
+}
+
+/* Additional tags fallback strip if any non-canonical tags exist */
+.extraTags {
+  margin-top: var(--site-space-2xl);
+  padding-top: var(--site-space-lg);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.extraHeading {
+  margin: 0 0 var(--site-space-sm);
+  font-size: 1.05rem;
+  color: var(--ifm-heading-color);
+}
+
+.extraList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--site-space-2xs);
+}
+
+.extraPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.78rem;
+  border-radius: var(--site-radius-pill);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--site-surface-elevated);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ifm-font-color-base);
+  text-decoration: none;
+}
+
+.extraPill:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.extraCount {
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* ------------------------------------------------------------------ */
+/* Seamless PageCTA integration                                        */
+/* ------------------------------------------------------------------ */
+
+.ctaWrap {
+  --ifm-color-emphasis-100: var(--site-surface-subtle);
+}
+
+.ctaWrap > section {
+  margin-top: 0;
+}

@@ -1,5 +1,5 @@
 .newsPage {
-  background: var(--ifm-background-surface-color);
+  background: var(--site-canvas-editorial);
   color: var(--ifm-font-color-base);
   min-height: 60vh;
 }
@@ -326,7 +326,7 @@
 /* Floating Dispatch Card on individual blog posts */
 .articleBody :global(article) {
   position: relative;
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--site-radius-xl);
   box-shadow: var(--site-shadow-lg);
@@ -345,9 +345,9 @@
   background: var(--accent-bar);
 }
 
-/* Fallback surface when rendering non-post routes (e.g. /news/tags) */
+/* Fallback surface when rendering non-post routes */
 .listCard {
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--site-radius-xl);
   box-shadow: var(--site-shadow-lg);
@@ -417,6 +417,30 @@
   border-radius: var(--site-radius-md);
 }
 
+/* Promote trailing single-image banner above summary text cleanly via CSS */
+.articleBody :global(article .markdown:has(> p:last-child > img:only-child)) {
+  display: flex;
+  flex-direction: column;
+}
+
+.articleBody :global(article .markdown > p:last-child:has(> img:only-child)) {
+  order: -1;
+  margin: 0 0 var(--site-space-md);
+  border-radius: var(--site-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--site-stage-bg-start);
+  box-shadow: var(--site-shadow-sm);
+}
+
+.articleBody :global(article .markdown > p:last-child > img:only-child) {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 0;
+}
+
 .articleBody :global(.markdown iframe[src*="youtube.com"]),
 .articleBody :global(.markdown iframe[src*="youtu.be"]) {
   width: 100%;
@@ -428,6 +452,12 @@
 }
 
 /* Auto-elevate the legacy right-aligned external read-more link across all posts */
+.articleBody :global(.markdown div[style*="text-align: right"]),
+.articleBody :global(.markdown div[style*="text-align:right"]),
+.articleBody :global(.markdown p[align="right"]) {
+  margin-top: var(--site-space-xs);
+  margin-bottom: var(--site-space-sm);
+}
 .articleBody :global(.markdown div[style*="text-align: right"] a),
 .articleBody :global(.markdown div[style*="text-align:right"] a),
 .articleBody :global(.markdown p[align="right"] a) {
@@ -497,7 +527,7 @@
 }
 
 .articleBody :global(.pagination-nav__link) {
-  background: var(--ifm-background-surface-color);
+  background: var(--site-surface-elevated);
   border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--site-radius-lg);
   padding: var(--site-space-md);
@@ -537,6 +567,10 @@
 /* ------------------------------------------------------------------ */
 /* Seamless PageCTA integration                                        */
 /* ------------------------------------------------------------------ */
+
+.ctaWrap {
+  --ifm-color-emphasis-100: var(--site-surface-subtle);
+}
 
 .ctaWrap > section {
   margin-top: 0;
